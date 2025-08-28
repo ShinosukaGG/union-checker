@@ -3,134 +3,119 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Union Allocation Checker</title>
+  <title>UNION — Allocation Checker</title>
 
-  <!-- Fonts -->
+  <!-- JetBrains Mono -->
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <!-- If you have Supermolot, host it and uncomment:
+
+  <!-- If you host Supermolot, uncomment and point to your files
   <style>
   @font-face {
     font-family: "Supermolot";
     src: url("./Supermolot-Bold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+    font-weight: 700; font-style: normal; font-display: swap;
   }
   </style>
   -->
 
   <style>
     :root{
-      --union-primary:#000000;     /* background */
-      --union-secondary:#A6ECFD;   /* accent cyan */
+      --union-primary:#000000;
+      --union-secondary:#A6ECFD;
       --union-white:#FFFFFF;
-      --union-grey-1:#0d0d0d;
-      --union-grey-2:#1a1a1a;
-      --union-grey-3:#333333;
-      --union-grey-4:#666666;
+      --grey-3:#333333;
+      --grey-4:#666666;
       --radius:16px;
-      --maxw:980px;
+      --maxw:1080px;
     }
 
-    /* Base */
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0;
-      background:var(--union-primary);
-      color:var(--union-white);
+      margin:0; background:var(--union-primary); color:var(--union-white);
       font-family:"JetBrains Mono", monospace;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
 
     /* Header */
     .header{
-      position:fixed; inset:0 0 auto 0;
-      height:64px;
-      background:#0b0b0b;
-      border-bottom:1px solid var(--union-grey-3);
-      display:flex; align-items:center; justify-content:center;
-      z-index:10;
+      position:fixed; top:0; left:0; right:0; height:68px;
+      background:#0b0b0b; border-bottom:1px solid var(--grey-3);
+      display:flex; align-items:center; justify-content:center; z-index:20;
     }
-    .header__inner{width:100%; max-width:var(--maxw); display:grid; grid-template-columns:160px 1fr 160px; align-items:center; padding:0 16px;}
-    .brand{font-weight:700; letter-spacing:0.08em}
-    .brand em{color:var(--union-secondary); font-style:normal}
-    .title{
-      text-align:center;
+    .header__inner{
+      width:100%; max-width:var(--maxw); padding:0 16px;
+      display:grid; grid-template-columns:180px 1fr 180px; align-items:center; gap:12px;
+    }
+    .header__logo img{height:32px; display:block}
+    .header__title{
+      text-align:center; letter-spacing:.08em;
+      font-size:18px; font-weight:700; /* Supermolot preferred if loaded */
       font-family:"Supermolot","JetBrains Mono",sans-serif;
-      font-size:20px; letter-spacing:.06em;
     }
-    .right{justify-self:end; color:var(--union-grey-4); font-size:12px}
+    .header__right{
+      justify-self:end; font-size:12px; color:var(--grey-4);
+    }
 
     /* Main */
-    main{padding-top:80px; padding-bottom:88px; min-height:100%;}
+    main{padding-top:88px; padding-bottom:88px; min-height:100%;}
     .container{max-width:var(--maxw); margin:0 auto; padding:0 16px;}
-    .rule{border-top:1px solid var(--union-grey-3); margin:16px 0 24px}
+    .rule{border-top:1px solid var(--grey-3); margin:16px 0 24px}
 
-    /* Dynamic Search Box (injected by JS) */
-    .search-wrap{
-      display:flex; justify-content:center; margin-top:48px;
-    }
+    /* Search */
+    .search-wrap{display:flex; justify-content:center; margin-top:48px;}
     .search{
-      width:100%; max-width:640px;
-      background:var(--union-grey-1);
-      border:1px solid var(--union-grey-3);
-      border-radius:var(--radius);
-      padding:12px;
-      display:flex; gap:8px;
-      box-shadow:0 4px 24px rgba(0,0,0,.35);
+      width:100%; max-width:640px; background:#0d0d0d;
+      border:1px solid var(--grey-3); border-radius:var(--radius);
+      padding:12px; display:flex; gap:8px; box-shadow:0 4px 24px rgba(0,0,0,.35);
     }
     .search input{
       flex:1; background:#000; color:var(--union-white);
-      border:1px solid var(--union-grey-3);
-      border-radius:12px; padding:12px 14px;
-      outline:none;
+      border:1px solid var(--grey-3); border-radius:12px; padding:12px 14px; outline:none;
     }
     .search button{
       background:var(--union-secondary); color:#000; border:0;
-      border-radius:12px; padding:12px 16px; font-weight:700;
-      cursor:pointer;
+      border-radius:12px; padding:12px 16px; font-weight:700; cursor:pointer;
     }
-    .search button:hover{filter:brightness(1.05)}
-    .helper{color:var(--union-grey-4); font-size:12px; margin-top:8px; text-align:center}
+    .helper{color:var(--grey-4); font-size:12px; margin-top:8px; text-align:center}
 
-    /* Result Card */
+    /* Result */
     .result{
-      display:none; /* shown after submit */
-      margin:48px auto 0; width:min(720px, 92vw);
-      background:linear-gradient(180deg,#0b0b0b,#111);
-      border:1px solid var(--union-grey-3);
-      border-radius:var(--radius);
-      box-shadow:0 8px 36px rgba(0,0,0,.5);
-      padding:18px;
+      display:none; margin:48px auto 0; width:min(740px,92vw);
+      background:linear-gradient(180deg,#0b0b0b,#101010);
+      border:1px solid var(--grey-3); border-radius:var(--radius);
+      box-shadow:0 8px 36px rgba(0,0,0,.5); padding:18px;
+      transition:opacity .25s ease; opacity:0;
     }
+    .result.show{display:block; opacity:1;}
     .result__head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
     .result__head h3{
       margin:0; font-size:14px; letter-spacing:.08em; color:var(--union-secondary);
       font-family:"Supermolot","JetBrains Mono",sans-serif;
     }
+    .id-tag{color:var(--grey-4); font-size:12px}
     .result__box{
-      border:1px dashed var(--union-grey-4);
-      border-radius:12px; padding:16px;
-      background:#000;
-      display:flex; justify-content:center; align-items:center;
-      min-height:360px;
+      border:1px dashed var(--grey-4); border-radius:12px; padding:18px; background:#000;
+      min-height:360px; display:flex; align-items:center; justify-content:center;
     }
     .result__box img{max-width:100%; height:auto; display:block}
 
     /* Footer */
     .footer{
-      position:fixed; inset:auto 0 0 0;
-      height:72px; background:#0b0b0b; border-top:1px solid var(--union-grey-3);
-      display:flex; align-items:center;
+      position:fixed; left:0; right:0; bottom:0; height:72px;
+      background:#0b0b0b; border-top:1px solid var(--grey-3); display:flex; align-items:center;
     }
-    .footer__inner{max-width:var(--maxw); margin:0 auto; width:100%; padding:0 16px; display:flex; justify-content:space-between; align-items:center;}
-    .small{color:var(--union-grey-4); font-size:12px}
+    .footer__inner{
+      max-width:var(--maxw); margin:0 auto; width:100%; padding:0 16px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .small{font-size:12px; color:var(--grey-4)}
 
-    @media (max-width:520px){
-      .header__inner{grid-template-columns:120px 1fr 120px}
-      .title{font-size:16px}
+    @media (max-width:560px){
+      .header__inner{grid-template-columns:140px 1fr 120px}
+      .header__title{font-size:16px}
+      .footer{height:64px}
+      main{padding-bottom:76px}
     }
   </style>
 </head>
@@ -138,9 +123,9 @@
   <!-- Header -->
   <header class="header">
     <div class="header__inner">
-      <div class="brand">UNION<span class="brand-dot"></span></div>
-      <div class="title">ALLOCATION CHECKER</div>
-      <div class="right">community build</div>
+      <div class="header__logo"><img src="./union-logo.svg" alt="UNION" /></div>
+      <div class="header__title">ALLOCATION CHECKER</div>
+      <div class="header__right">v1.0</div>
     </div>
   </header>
 
@@ -149,17 +134,18 @@
     <div class="container">
       <div class="rule"></div>
 
+      <!-- Dynamic Search -->
       <div id="searchMount" class="search-wrap"></div>
-      <div class="helper">Enter your X username (without @) and press Enter</div>
+      <div id="helper" class="helper">Enter your X username (without @) and press Enter</div>
 
       <!-- Result -->
       <section id="result" class="result" aria-live="polite">
         <div class="result__head">
-          <h3>YOUR RESULT</h3>
-          <span class="small" id="who"></span>
+          <h3>RESULT</h3>
+          <span id="who" class="id-tag"></span>
         </div>
         <div class="result__box">
-          <img src="./dice.png" alt="Allocation dice result" />
+          <img src="./dice.jpg" alt="Allocation result" />
         </div>
       </section>
     </div>
@@ -168,48 +154,39 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer__inner">
-      <div class="small">Not an official Union tool</div>
-      <div class="small">Made by <a href="https://x.com/Shinosuka_eth" target="_blank" rel="noopener" style="color:var(--union-secondary); text-decoration:none;">@Shinosuka_eth</a></div>
+      <div class="small">UNION</div>
+      <div class="small">© 2025</div>
     </div>
   </footer>
 
   <script>
-    // Dynamically build the search box (per your pattern)
-    (function mountSearch(){
+    // Build the familiar dynamic search UI
+    (function(){
       const mount = document.getElementById('searchMount');
-      const form = document.createElement('form');
-      form.className = 'search';
-      form.setAttribute('autocomplete','off');
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.name = 'username';
-      input.placeholder = 'x username (e.g. shinosuka_eth)';
-      input.required = true;
-
-      const btn = document.createElement('button');
-      btn.type = 'submit';
-      btn.textContent = 'Check';
-
-      form.appendChild(input);
-      form.appendChild(btn);
-      mount.appendChild(form);
-
+      const helper = document.getElementById('helper');
       const result = document.getElementById('result');
       const who = document.getElementById('who');
+
+      const form = document.createElement('form');
+      form.className = 'search'; form.autocomplete = 'off';
+
+      const input = document.createElement('input');
+      input.type = 'text'; input.placeholder = 'x username (e.g. shinosuka_eth)'; input.required = true; input.name='username';
+
+      const btn = document.createElement('button');
+      btn.type = 'submit'; btn.textContent = 'Check';
+
+      form.appendChild(input); form.appendChild(btn); mount.appendChild(form);
 
       form.addEventListener('submit', (e)=>{
         e.preventDefault();
         const user = input.value.trim();
-        // Hide search UI
+        // Hide search & helper
         mount.style.display = 'none';
-        document.querySelector('.helper').style.display = 'none';
-
-        // Show result card, stamp the username (no fetch needed for now)
-        who.textContent = user ? '@' + user : '';
-        result.style.display = 'block';
-        // (Optional) add a tiny delay to feel dynamic
-        // setTimeout(()=> result.style.display='block', 250);
+        helper.style.display = 'none';
+        // Show result
+        who.textContent = user ? '@'+user : '';
+        result.classList.add('show');
       });
     })();
   </script>
